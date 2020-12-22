@@ -1,0 +1,104 @@
+<head>
+<meta charset="UTF-8">
+<title> Temp Control </title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+<style type="text/css">
+
+/* T. Moses 11/13/14 */
+/* Z. Gregory 6/28/18 */
+
+ body {
+    background-color:rgb(255,255,240);
+}
+
+form{
+	margin:auto;
+	width:250px;
+}
+
+
+.titlebar > p {
+	width: 95%;
+	height: 60px;
+	background:#502d7f;
+	margin: 0;
+	color: #fff;
+	font-weight:bold;
+	font-style:italic;
+	font-size:36px;
+	text-align: center;
+	padding:25px;
+   }
+
+.button {
+  padding: 5px 30px;
+  font-size: 24px;
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  color: #fff;
+  background-color: #502d7f;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+}
+
+.button:hover {background-color: #6C40A7}
+
+.button:active {
+  background-color: #696969;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+</style>
+
+<script type = "text/javascript" 
+	src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js">
+</script>
+	
+<script type = "text/javascript" charset = "utf-8">
+        var updatingEnabled = 0;
+        var timerId;             
+        var socket = io.connect('http://localhost:5000/')
+		
+        socket.on('connect', function() {
+            console.log('Websocket connected!');
+            updatingEnabled = 1;
+            checkForUpdates();
+        });
+		
+		socket.on('updated', function(json) {
+            var dataObj = JSON.parse(json);
+            console.log('got some updated info: '+ 'temp');
+            document.getElementById("countDisplay").innerHTML = 'temp';
+        });
+        
+        function sendNumber() {
+            console.log('Sending Temperature...');
+            socket.emit('sendNumber', {Temperature: 'temp'});
+        }
+        function checkForUpdates() {
+            console.log('Requesting update...');
+            socket.emit('reqUpdate');
+            timerId = setTimeout(checkForUpdates, 1000);
+            }
+
+</script>
+
+</head>
+
+<body>
+	<div class = "sitewrapper"> 
+   <div class = "titlebar"> <p>Temperature Control Center</p> </div>
+<p>
+
+<form method = "POST" action = "/send">
+
+	<h3>Temperature:</h3><input type="text" name="temp"><p>
+	<input class="button" type="submit" value="Submit">
+	<br>
+	<br>
+	<h3>Current Temperature: </h3><p id = "countDisplay"></p>
+</form>
